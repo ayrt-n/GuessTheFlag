@@ -16,6 +16,12 @@ struct ContentView: View {
     @State private var scoreMessage = ""
     @State private var score = 0
     
+    @State private var questionsAsked = 0
+    @State private var showingGameOver = false
+    private var gameOver: Bool {
+        questionsAsked == 8
+    }
+    
     var body: some View {
         ZStack {
             RadialGradient(stops: [
@@ -66,8 +72,13 @@ struct ContentView: View {
             }
             .padding()
         }
+        .alert("Game over!", isPresented: $showingGameOver) {
+            Button("Play again", action: resetGame)
+        } message: {
+            Text("You got \(score) correct")
+        }
         .alert(scoreTitle, isPresented: $showingScore) {
-            Button("Continue", action: askQuestion)
+            Button("Continue", action: nextQuestion)
         } message: {
             Text(scoreMessage)
         }
@@ -77,13 +88,28 @@ struct ContentView: View {
         if number == correctAnswer {
             scoreTitle = "Correct"
             score += 1
-            scoreMessage = "You have got \(score) correct!"
+            scoreMessage = "You have got \(score) correct"
         } else {
             scoreTitle = "Wrong"
             scoreMessage = "That is the flag of \(countries[number])"
         }
         
+        questionsAsked += 1
         showingScore = true
+    }
+    
+    func nextQuestion() {
+        if gameOver {
+            showingGameOver = true
+        } else {
+            askQuestion()
+        }
+    }
+    
+    func resetGame() {
+        score = 0
+        questionsAsked = 0
+        askQuestion()
     }
     
     func askQuestion() {
