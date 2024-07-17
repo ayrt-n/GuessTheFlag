@@ -32,6 +32,8 @@ struct ContentView: View {
         questionsAsked == 8
     }
     
+    @State private var flagSelected = -1
+    
     var body: some View {
         ZStack {
             RadialGradient(stops: [
@@ -62,9 +64,13 @@ struct ContentView: View {
                         } label: {
                             FlagImage(country: countries[number])
                         }
+                        .rotation3DEffect(.degrees(flagSelected == number ? 360 : 0), axis: (x: 1, y: 0, z: 0))
+                        .opacity((flagSelected == -1 || flagSelected == number) ? 1 : 0.25)
+                        .scaleEffect((flagSelected == -1 || flagSelected == number) ? 1 : 0.75)
+                        .animation(.default, value: flagSelected)
                     }
                 }
-                .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
+                .frame(maxWidth: .infinity)
                 .padding(.vertical, 20)
                 .background(.regularMaterial)
                 .clipShape(.rect(cornerRadius: 20))
@@ -93,6 +99,8 @@ struct ContentView: View {
     }
     
     func flagTapped(_ number: Int) {
+        flagSelected = number
+        
         if number == correctAnswer {
             scoreTitle = "Correct"
             score += 1
@@ -107,6 +115,8 @@ struct ContentView: View {
     }
     
     func nextQuestion() {
+        flagSelected = -1
+        
         if gameOver {
             showingGameOver = true
         } else {
